@@ -34,49 +34,67 @@ public class ExFilePicker {
     private String mStartDirectory;
     private boolean mUseFirstItemAsUpEnabled;
     private boolean mHideHiddenFilesEnabled;
+    @Nullable
+    private String mTitle;
 
-    public void setCanChooseOnlyOneItem(boolean canChooseOnlyOneItem) {
+    public ExFilePicker setCanChooseOnlyOneItem(boolean canChooseOnlyOneItem) {
         mCanChooseOnlyOneItem = canChooseOnlyOneItem;
+        return this;
     }
 
-    public void setShowOnlyExtensions(@Nullable String... extension) {
+    public ExFilePicker setShowOnlyExtensions(@Nullable String... extension) {
         mShowOnlyExtensions = extension;
+        return this;
     }
 
-    public void setExceptExtensions(@Nullable String... extension) {
+    public ExFilePicker setExceptExtensions(@Nullable String... extension) {
         mExceptExtensions = extension;
+        return this;
     }
 
-    public void setNewFolderButtonDisabled(boolean disabled) {
+    public ExFilePicker setNewFolderButtonDisabled(boolean disabled) {
         mIsNewFolderButtonDisabled = disabled;
+        return this;
     }
 
-    public void setSortButtonDisabled(boolean disabled) {
+    public ExFilePicker setSortButtonDisabled(boolean disabled) {
         mIsSortButtonDisabled = disabled;
+        return this;
     }
 
-    public void setQuitButtonEnabled(boolean enabled) {
+    public ExFilePicker setQuitButtonEnabled(boolean enabled) {
         mIsQuitButtonEnabled = enabled;
+        return this;
     }
 
-    public void setChoiceType(@NonNull ChoiceType choiceType) {
+    public ExFilePicker setChoiceType(@NonNull ChoiceType choiceType) {
         mChoiceType = choiceType;
+        return this;
     }
 
-    public void setSortingType(@NonNull SortingType sortingType) {
+    public ExFilePicker setSortingType(@NonNull SortingType sortingType) {
         mSortingType = sortingType;
+        return this;
     }
 
-    public void setStartDirectory(@Nullable String startDirectory) {
+    public ExFilePicker setStartDirectory(@Nullable String startDirectory) {
         mStartDirectory = startDirectory;
+        return this;
     }
 
-    public void setUseFirstItemAsUpEnabled(boolean enabled) {
+    public ExFilePicker setUseFirstItemAsUpEnabled(boolean enabled) {
         mUseFirstItemAsUpEnabled = enabled;
+        return this;
     }
 
-    public void setHideHiddenFilesEnabled(boolean enabled) {
+    public ExFilePicker setHideHiddenFilesEnabled(boolean enabled) {
         mHideHiddenFilesEnabled = enabled;
+        return this;
+    }
+
+    public ExFilePicker setTitle(@Nullable String title) {
+        mTitle = title;
+        return this;
     }
 
     public void start(@NonNull Activity activity, int requestCode) {
@@ -112,6 +130,7 @@ public class ExFilePicker {
         intent.putExtra(ExFilePickerActivity.EXTRA_START_DIRECTORY, mStartDirectory);
         intent.putExtra(ExFilePickerActivity.EXTRA_USE_FIRST_ITEM_AS_UP_ENABLED, mUseFirstItemAsUpEnabled);
         intent.putExtra(ExFilePickerActivity.EXTRA_HIDE_HIDDEN_FILES, mHideHiddenFilesEnabled);
+        intent.putExtra(ExFilePickerActivity.EXTRA_TITLE, mTitle);
         return intent;
     }
 

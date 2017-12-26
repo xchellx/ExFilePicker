@@ -9,11 +9,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,12 +34,11 @@ import ru.bartwell.exfilepicker.ui.adapter.FilesListAdapter;
 import ru.bartwell.exfilepicker.ui.callback.OnListItemClickListener;
 import ru.bartwell.exfilepicker.ui.dialog.NewFolderDialog;
 import ru.bartwell.exfilepicker.ui.dialog.SortingDialog;
-import ru.bartwell.exfilepicker.ui.view.FilesListToolbar;
 import ru.bartwell.exfilepicker.utils.ListUtils;
 import ru.bartwell.exfilepicker.utils.Utils;
 
 public class ExFilePickerActivity extends AppCompatActivity implements OnListItemClickListener,
-        Toolbar.OnMenuItemClickListener, View.OnClickListener, NewFolderDialog.OnNewFolderNameEnteredListener,
+        NewFolderDialog.OnNewFolderNameEnteredListener,
         SortingDialog.OnSortingSelectedListener {
 
     public static final String EXTRA_CAN_CHOOSE_ONLY_ONE_ITEM = "CAN_CHOOSE_ONLY_ONE_ITEM";
@@ -52,6 +52,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     public static final String EXTRA_START_DIRECTORY = "START_DIRECTORY";
     public static final String EXTRA_USE_FIRST_ITEM_AS_UP_ENABLED = "USE_FIRST_ITEM_AS_UP_ENABLED";
     public static final String EXTRA_HIDE_HIDDEN_FILES = "HIDE_HIDDEN_FILES";
+    public static final String EXTRA_TITLE = "TITLE";
     public static final String PERMISSION_READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 1;
     private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 2;
@@ -70,13 +71,13 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     @NonNull
     private ExFilePicker.SortingType mSortingType = ExFilePicker.SortingType.NAME_ASC;
     private File mCurrentDirectory;
-    private FilesListToolbar mToolbar;
     private RecyclerView mRecyclerView;
     private View mEmptyView;
     private FilesListAdapter mAdapter;
     private boolean mIsMultiChoiceModeEnabled;
     private boolean mUseFirstItemAsUpEnabled;
     private boolean mHideHiddenFiles;
+    private String mTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -130,19 +131,26 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
 
     @Override
     public void onListItemLongClick(int position) {
+        if (mCanChooseOnlyOneItem)
+            return;
         if (!mIsMultiChoiceModeEnabled && position != OnListItemClickListener.POSITION_UP) {
-            mIsMultiChoiceModeEnabled = true;
+            setMultiChoiceModeEnabled(true);
             if (mChoiceType != ExFilePicker.ChoiceType.FILES || !mAdapter.getItem(position).isDirectory()) {
                 mAdapter.setItemSelected(position, true);
             }
-            setMultiChoiceModeEnabled(true);
         }
     }
 
     @Override
-    public boolean onMenuItemClick(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.ok) {
+        if (itemId == android.R.id.home) {
+            if (mIsMultiChoiceModeEnabled) {
+                setMultiChoiceModeEnabled(false);
+            } else {
+                finish();
+            }
+        } else if (itemId == R.id.ok) {
             if (mIsMultiChoiceModeEnabled) {
                 finishWithResult(mCurrentDirectory, mAdapter.getSelectedItems());
             } else if (mChoiceType == ExFilePicker.ChoiceType.DIRECTORIES) {
@@ -171,19 +179,9 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         } else if (itemId == R.id.change_view) {
             toggleViewMode();
         } else {
-            return false;
+            return super.onOptionsItemSelected(item);
         }
         return true;
-    }
-
-    @Override
-    public void onClick(@NonNull View view) {
-        if (mIsMultiChoiceModeEnabled) {
-            setMultiChoiceModeEnabled(false);
-            setupOkButtonVisibility();
-        } else {
-            finish();
-        }
     }
 
     @Override
@@ -192,7 +190,6 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
             if (event.getAction() == KeyEvent.ACTION_UP) {
                 if (mIsMultiChoiceModeEnabled) {
                     setMultiChoiceModeEnabled(false);
-                    setupOkButtonVisibility();
                 } else {
                     if (isTopDirectory(mCurrentDirectory)) {
                         finish();
@@ -296,10 +293,21 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     }
 
     private void setTitle(@NonNull File directory) {
+        String title = mTitle;
+        String subtitle;
         if (isTopDirectory(directory)) {
-            mToolbar.setTitle(TOP_DIRECTORY);
+            subtitle = TOP_DIRECTORY;
         } else {
-            mToolbar.setTitle(directory.getName());
+            subtitle = directory.getName();
+        }
+        if (TextUtils.isEmpty(title)) {
+            title = subtitle;
+            subtitle = null;
+        }
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setTitle(title);
+            ab.setSubtitle(subtitle);
         }
     }
 
@@ -316,6 +324,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         mCurrentDirectory = getStartDirectory(intent);
         mUseFirstItemAsUpEnabled = intent.getBooleanExtra(EXTRA_USE_FIRST_ITEM_AS_UP_ENABLED, false);
         mHideHiddenFiles = intent.getBooleanExtra(EXTRA_HIDE_HIDDEN_FILES, false);
+        mTitle = intent.getStringExtra(EXTRA_TITLE);
     }
 
     private int calculateGridColumnsCount() {
@@ -328,40 +337,51 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         dialog.show();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(mIsMultiChoiceModeEnabled || mIsQuitButtonEnabled);
+        if (mIsMultiChoiceModeEnabled) {
+            getMenuInflater().inflate(R.menu.files_list_multi_choice, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.files_list_single_choice, menu);
+            MenuItem menuItem = menu.findItem(R.id.change_view);
+            if (!mAdapter.isGridModeEnabled()) {
+                menuItem.setIcon(Utils.attrToResId(this, R.attr.efp__ic_action_grid));
+                menuItem.setTitle(R.string.efp__action_grid);
+            } else {
+                menuItem.setIcon(Utils.attrToResId(this, R.attr.efp__ic_action_list));
+                menuItem.setTitle(R.string.efp__action_list);
+            }
+            menu.findItem(R.id.new_folder).setVisible(!mIsNewFolderButtonDisabled);
+        }
+        menu.findItem(R.id.sort).setVisible(!mIsSortButtonDisabled);
+        menu.findItem(R.id.ok).setVisible(mChoiceType == ExFilePicker.ChoiceType.DIRECTORIES);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void toggleViewMode() {
-        MenuItem menuItem = mToolbar.getMenu().findItem(R.id.change_view);
         if (mAdapter.isGridModeEnabled()) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-            menuItem.setIcon(Utils.attrToResId(this, R.attr.efp__ic_action_grid));
-            menuItem.setTitle(R.string.efp__action_grid);
             mAdapter.setGridModeEnabled(false);
         } else {
             mRecyclerView.setLayoutManager(new GridLayoutManager(this, calculateGridColumnsCount()));
-            menuItem.setIcon(Utils.attrToResId(this, R.attr.efp__ic_action_list));
-            menuItem.setTitle(R.string.efp__action_list);
             mAdapter.setGridModeEnabled(true);
         }
-        setChangeViewIcon(mToolbar.getMenu());
+        invalidateOptionsMenu();
     }
 
     private void setMultiChoiceModeEnabled(boolean enabled) {
+        if (mIsMultiChoiceModeEnabled == enabled)
+            return;
         mIsMultiChoiceModeEnabled = enabled;
-        mToolbar.setMultiChoiceModeEnabled(enabled);
         mAdapter.setUseFirstItemAsUpEnabled(!enabled && mUseFirstItemAsUpEnabled && !isTopDirectory(mCurrentDirectory));
         mAdapter.setMultiChoiceModeEnabled(enabled);
-        setChangeViewIcon(mToolbar.getMenu());
+        invalidateOptionsMenu();
     }
 
     private boolean isTopDirectory(@Nullable File directory) {
         return directory != null && TOP_DIRECTORY.equals(directory.getAbsolutePath());
-    }
-
-    private void setChangeViewIcon(@NonNull Menu menu) {
-        MenuItem item = menu.findItem(R.id.change_view);
-        if (item != null) {
-            item.setIcon(Utils.attrToResId(this, mAdapter.isGridModeEnabled() ? R.attr.efp__ic_action_list : R.attr.efp__ic_action_grid));
-            item.setTitle(mAdapter.isGridModeEnabled() ? R.string.efp__action_list : R.string.efp__action_grid);
-        }
     }
 
     private void finishWithResult(@NonNull File path, @NonNull String file) {
@@ -388,20 +408,12 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         mAdapter.setCanChooseOnlyFiles(mChoiceType == ExFilePicker.ChoiceType.FILES);
         mAdapter.setUseFirstItemAsUpEnabled(mUseFirstItemAsUpEnabled);
         mRecyclerView.setAdapter(mAdapter);
-        mToolbar = (FilesListToolbar) findViewById(R.id.toolbar);
-        mToolbar.setOnMenuItemClickListener(this);
-        mToolbar.setNavigationOnClickListener(this);
-        mToolbar.setQuitButtonEnabled(mIsQuitButtonEnabled);
-        mToolbar.setMultiChoiceModeEnabled(false);
-        Menu menu = mToolbar.getMenu();
-        setupOkButtonVisibility();
-        menu.findItem(R.id.new_folder).setVisible(!mIsNewFolderButtonDisabled);
-        menu.findItem(R.id.sort).setVisible(!mIsSortButtonDisabled);
-        mEmptyView = findViewById(R.id.empty_view);
-    }
 
-    private void setupOkButtonVisibility() {
-        mToolbar.getMenu().findItem(R.id.ok).setVisible(mChoiceType == ExFilePicker.ChoiceType.DIRECTORIES);
+        mEmptyView = findViewById(R.id.empty_view);
+
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeAsUpIndicator(Utils.attrToResId(this, R.attr.efp__ic_action_cancel));
     }
 
     @NonNull
