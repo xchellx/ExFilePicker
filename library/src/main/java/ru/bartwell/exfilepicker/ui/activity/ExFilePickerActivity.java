@@ -412,8 +412,10 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         mEmptyView = findViewById(R.id.empty_view);
 
         ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setHomeAsUpIndicator(Utils.attrToResId(this, R.attr.efp__ic_action_cancel));
+        if (ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setHomeAsUpIndicator(Utils.attrToResId(this, R.attr.efp__ic_action_cancel));
+        }
     }
 
     @NonNull
@@ -422,14 +424,18 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         String startPath = intent.getStringExtra(EXTRA_START_DIRECTORY);
         if (startPath != null && startPath.length() > 0) {
             File tmp = new File(startPath);
-            if (tmp.exists() && tmp.isDirectory()) {
+            if (tmp.exists()) {
                 path = tmp;
+                if (tmp.isFile()) {
+                    path = tmp.getParentFile();
+                }
             }
         }
         if (path == null) {
-            path = new File("/");
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 path = Environment.getExternalStorageDirectory();
+            } else {
+                path = new File("/");
             }
         }
         return path;
