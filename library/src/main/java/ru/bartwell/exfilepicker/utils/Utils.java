@@ -3,13 +3,14 @@ package ru.bartwell.exfilepicker.utils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.support.annotation.AttrRes;
-import android.support.annotation.NonNull;
+import androidx.annotation.AttrRes;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 
 import ru.bartwell.exfilepicker.R;
@@ -22,19 +23,34 @@ public class Utils {
     private final static String CACHE_DIR_PATH_PART = "/Android";
 
     @NonNull
-    public static LinkedHashMap<String, String> getExternalStoragePaths(@NonNull Context context) {
+    public static LinkedHashMap<String, String> getNamedExternalStoragePaths(@NonNull Context context) {
         LinkedHashMap<String, String> result = new LinkedHashMap<>();
-        ArrayList<File> paths = new ArrayList<>();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            paths.addAll(Arrays.asList(context.getExternalCacheDirs()));
-        } else {
-            paths.add(context.getExternalCacheDir());
-        }
-        for (File dir : paths) {
-            String path = dir.getPath().split(CACHE_DIR_PATH_PART)[0];
-            result.put(path, new File(path).getName());
+        for (String path : getExternalStoragePaths(context)) {
+            result.put(path, getFriendlyName(context, path));
         }
         return result;
+    }
+
+    @NonNull
+    public static List<String> getExternalStoragePaths(@NonNull Context context) {
+        ArrayList<String> paths = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            for (File externalCacheDir : context.getExternalCacheDirs())
+                paths.add(externalCacheDir.getPath().split(CACHE_DIR_PATH_PART)[0]);
+        } else {
+            paths.add(context.getExternalCacheDir().getPath().split(CACHE_DIR_PATH_PART)[0]);
+        }
+
+        return paths;
+    }
+
+    private static String getFriendlyName(Context context, String path) {
+        String name = new File(path).getName();
+        if (name.equals("0")) // emulated/0/ i.e. root
+            return context.getString(R.string.efp__internal_storage);
+        if (name.length() == 9 && name.charAt(4) == '-')
+            return context.getString(R.string.efp__external_storage, name);
+        return name;
     }
 
     @NonNull

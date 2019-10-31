@@ -1,9 +1,6 @@
 package ru.bartwell.exfilepicker.utils.comparator;
 
-import android.support.annotation.NonNull;
-
-import java.io.File;
-import java.util.Comparator;
+import androidx.annotation.NonNull;
 
 import ru.bartwell.exfilepicker.ExFilePicker;
 

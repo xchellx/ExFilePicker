@@ -5,20 +5,21 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -205,7 +206,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
                     setMultiChoiceModeEnabled(false);
                     setupOkButtonVisibility();
                 } else {
-                    if (isTopDirectory(mCurrentDirectory)) {
+                    if (isTopDirectory(mCurrentDirectory) || isStorageTopDirectory(mCurrentDirectory)) {
                         finish();
                     } else {
                         readUpDirectory();
@@ -254,7 +255,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
 
     private void readDirectory(@NonNull File directory) {
         setTitle(directory);
-        mAdapter.setUseFirstItemAsUpEnabled(!isTopDirectory(directory) && mUseFirstItemAsUpEnabled);
+        mAdapter.setUseFirstItemAsUpEnabled(!isTopDirectory(directory) && !isStorageTopDirectory(directory) && mUseFirstItemAsUpEnabled);
         File[] files = directory.listFiles();
         if (files == null || files.length == 0) {
             if (mUseFirstItemAsUpEnabled) {
@@ -315,6 +316,8 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     private void setTitle(@NonNull File directory) {
         if (isTopDirectory(directory)) {
             mToolbar.setTitle(TOP_DIRECTORY);
+        } else if (directory.getAbsolutePath().equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
+            mToolbar.setTitle(getString(R.string.efp__internal_storage));
         } else {
             mToolbar.setTitle(directory.getName());
         }
@@ -371,6 +374,20 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
 
     private boolean isTopDirectory(@Nullable File directory) {
         return directory != null && TOP_DIRECTORY.equals(directory.getAbsolutePath());
+    }
+
+    private boolean isStorageTopDirectory(@Nullable File directory) {
+
+        if (directory == null)
+            return false;
+
+        List<String> paths = Utils.getExternalStoragePaths(this);
+        for (String path : paths) {
+            if (directory.getAbsolutePath().equals(path))
+                return true;
+        }
+
+        return false;
     }
 
     private void setChangeViewIcon(@NonNull Menu menu) {
@@ -432,7 +449,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
             }
         }
         if (path == null) {
-            LinkedHashMap<String, String> storages = Utils.getExternalStoragePaths(this);
+            LinkedHashMap<String, String> storages = Utils.getNamedExternalStoragePaths(this);
             if (storages.size() > 0) {
                 path = new File((String) storages.keySet().toArray()[0]);
             }

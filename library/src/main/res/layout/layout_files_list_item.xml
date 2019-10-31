@@ -6,7 +6,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:padding="4dp">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/thumbnail"
         android:layout_width="@dimen/files_list_item_thumbnail_size"
         android:layout_height="@dimen/files_list_item_thumbnail_size"
@@ -20,7 +20,7 @@
         android:src="@android:drawable/stat_sys_download_done"
         tools:src="@android:drawable/sym_def_app_icon"/>
 
-    <android.support.v7.widget.AppCompatCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
         android:layout_toStartOf="@id/checkbox"
         android:orientation="vertical">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/filename"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="File.txt"/>
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/filesize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

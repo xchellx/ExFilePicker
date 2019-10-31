@@ -2,7 +2,7 @@ package ru.bartwell.exfilepicker.ui.dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.LinkedHashMap;
 
@@ -21,7 +21,7 @@ public class StorageDialog implements DialogInterface.OnClickListener {
     public StorageDialog(Context context) {
         mAlert = new AlertDialog.Builder(context);
         mAlert.setTitle(R.string.efp__storage);
-        mStorages = Utils.getExternalStoragePaths(context);
+        mStorages = Utils.getNamedExternalStoragePaths(context);
         mAlert.setItems(mStorages.values().toArray(new String[0]), this);
     }
 

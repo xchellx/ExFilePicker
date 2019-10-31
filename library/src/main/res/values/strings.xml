@@ -35,4 +35,7 @@
         <item>By date, descending</item>
     </string-array>
 
+    <string name="efp__internal_storage">Internal Storage</string>
+    <string name="efp__external_storage">SD Card (%1$s)</string>
+
 </resources>
