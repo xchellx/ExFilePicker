@@ -449,9 +449,9 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
             }
         }
         if (path == null) {
-            LinkedHashMap<String, String> storages = Utils.getNamedExternalStoragePaths(this);
+            List<String> storages = Utils.getExternalStoragePaths(this);
             if (storages.size() > 0) {
-                path = new File((String) storages.keySet().toArray()[0]);
+                path = new File(storages.get(0));
             }
         }
         if (path == null) {

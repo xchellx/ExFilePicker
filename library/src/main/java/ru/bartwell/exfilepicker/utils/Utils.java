@@ -3,12 +3,14 @@ package ru.bartwell.exfilepicker.utils;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,11 +47,20 @@ public class Utils {
     }
 
     private static String getFriendlyName(Context context, String path) {
-        String name = new File(path).getName();
+        File file = new File(path);
+        String name = file.getName();
         if (name.equals("0")) // emulated/0/ i.e. root
             return context.getString(R.string.efp__internal_storage);
-        if (name.length() == 9 && name.charAt(4) == '-')
+        if (name.length() == 9 && name.charAt(4) == '-') {
+            StorageManager storageManager;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                storageManager = context.getSystemService(StorageManager.class);
+                StorageVolume volume = storageManager.getStorageVolume(file);
+                if (volume != null)
+                    return context.getString(R.string.efp__external_storage_from_description, volume.getDescription(context), name);
+            }
             return context.getString(R.string.efp__external_storage, name);
+        }
         return name;
     }
 
