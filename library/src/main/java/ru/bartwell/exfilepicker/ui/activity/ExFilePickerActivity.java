@@ -456,8 +456,11 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         String startPath = intent.getStringExtra(EXTRA_START_DIRECTORY);
         if (startPath != null && startPath.length() > 0) {
             File tmp = new File(startPath);
-            if (tmp.exists() && tmp.isDirectory()) {
+            if (tmp.exists()) {
                 path = tmp;
+                if (tmp.isFile()) {
+                    path = tmp.getParentFile();
+                }
             }
         }
         if (path == null) {
