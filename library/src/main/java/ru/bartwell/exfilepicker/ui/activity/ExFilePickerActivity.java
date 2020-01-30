@@ -141,6 +141,8 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
 
     @Override
     public void onListItemLongClick(int position) {
+        if (mCanChooseOnlyOneItem)
+            return;
         if (!mIsMultiChoiceModeEnabled && position != OnListItemClickListener.POSITION_UP) {
             mIsMultiChoiceModeEnabled = true;
             if (mChoiceType != ExFilePicker.ChoiceType.FILES || !mAdapter.getItem(position).isDirectory()) {
