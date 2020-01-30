@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +56,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     public static final String EXTRA_START_DIRECTORY = "START_DIRECTORY";
     public static final String EXTRA_USE_FIRST_ITEM_AS_UP_ENABLED = "USE_FIRST_ITEM_AS_UP_ENABLED";
     public static final String EXTRA_HIDE_HIDDEN_FILES = "HIDE_HIDDEN_FILES";
+    public static final String EXTRA_TITLE = "TITLE";
     public static final String PERMISSION_READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
     private static final String DIRECTORY_STATE = "DIRECTORY_STATE";
     private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 1;
@@ -81,6 +83,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     private boolean mIsMultiChoiceModeEnabled;
     private boolean mUseFirstItemAsUpEnabled;
     private boolean mHideHiddenFiles;
+    private String mTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -314,13 +317,21 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
     }
 
     private void setTitle(@NonNull File directory) {
+        String title = mTitle;
+        String subtitle;
         if (isTopDirectory(directory)) {
-            mToolbar.setTitle(TOP_DIRECTORY);
+            subtitle = TOP_DIRECTORY;
         } else if (directory.getAbsolutePath().equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
-            mToolbar.setTitle(getString(R.string.efp__internal_storage));
+            subtitle = getString(R.string.efp__internal_storage);
         } else {
-            mToolbar.setTitle(directory.getName());
+            subtitle = directory.getName();
         }
+        if (TextUtils.isEmpty(title)) {
+            title = subtitle;
+            subtitle = null;
+        }
+        mToolbar.setTitle(title);
+        mToolbar.setSubtitle(subtitle);
     }
 
     private void handleIntent() {
@@ -336,6 +347,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
         mCurrentDirectory = getStartDirectory(intent);
         mUseFirstItemAsUpEnabled = intent.getBooleanExtra(EXTRA_USE_FIRST_ITEM_AS_UP_ENABLED, false);
         mHideHiddenFiles = intent.getBooleanExtra(EXTRA_HIDE_HIDDEN_FILES, false);
+        mTitle = intent.getStringExtra(EXTRA_TITLE);
     }
 
     private int calculateGridColumnsCount() {
