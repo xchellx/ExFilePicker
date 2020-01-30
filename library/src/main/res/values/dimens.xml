@@ -7,6 +7,6 @@
     <dimen name="files_grid_item_thumbnail_margin">4dp</dimen>
     <dimen name="files_grid_filename_text_size">12sp</dimen>
     <dimen name="files_grid_item_size">100dp</dimen>
-    <dimen name="files_grid_item_margin_top">8dp</dimen>
+    <dimen name="files_grid_item_margin">8dp</dimen>
     <dimen name="files_grid_item_text_margin_side">4dp</dimen>
 </resources>
