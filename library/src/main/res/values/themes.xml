@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ExFilePickerThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="ExFilePickerThemeLight" parent="Theme.AppCompat.Light">
         <item name="efp__ic_action_cancel">@drawable/efp_light__ic_action_cancel</item>
         <item name="efp__ic_action_deselect">@drawable/efp_light__ic_action_deselect</item>
         <item name="efp__ic_action_grid">@drawable/efp_light__ic_action_grid</item>
@@ -14,7 +14,7 @@
         <item name="efp__ic_action_storage">@drawable/efp_light__ic_action_storage</item>
     </style>
 
-    <style name="ExFilePickerThemeDark" parent="Theme.AppCompat.NoActionBar">
+    <style name="ExFilePickerThemeDark" parent="Theme.AppCompat">
         <item name="efp__ic_action_cancel">@drawable/efp_dark__ic_action_cancel</item>
         <item name="efp__ic_action_deselect">@drawable/efp_dark__ic_action_deselect</item>
         <item name="efp__ic_action_grid">@drawable/efp_dark__ic_action_grid</item>

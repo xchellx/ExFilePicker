@@ -4,24 +4,15 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-    <ru.bartwell.exfilepicker.ui.view.FilesListToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"/>
+        android:layout_height="match_parent"/>
 
     <FrameLayout
         android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
         android:background="?android:attr/windowBackground"
         android:visibility="gone">
 
