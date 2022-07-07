@@ -164,7 +164,7 @@ public class ExFilePickerActivity extends AppCompatActivity implements OnListIte
                 if (isTopDirectory(mCurrentDirectory)) {
                     finishWithResult(mCurrentDirectory, "/");
                 } else {
-                    finishWithResult(mCurrentDirectory.getParentFile(), mCurrentDirectory.getName());
+                    finishWithResult(mCurrentDirectory, mCurrentDirectory.getName());
                 }
             }
         } else if (itemId == R.id.sort) {
